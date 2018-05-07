@@ -25,8 +25,7 @@ int main(void) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // Open a window and create its OpenGL context
-  window =
-      glfwCreateWindow(1024, 768, "Red triangle", NULL, NULL);
+  window = glfwCreateWindow(1024, 768, "Red triangle", NULL, NULL);
   if (window == NULL) {
     fprintf(stderr, "Failed to open GLFW window. \n");
     getchar();
@@ -58,9 +57,29 @@ int main(void) {
   GLuint programID = LoadShaders("SimpleVertexShader.vertexshader",
                                  "SimpleFragmentShader.fragmentshader");
 
-  GLfloat g_vertex_buffer_data[] = {
-      -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-  };
+  // Get a handle for our "MVP" uniform
+  GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
+  // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit
+  // <-> 100 units
+  glm::mat4 Projection =
+      glm::perspective(glm::radians(75.0f), 4.0f / 3.0f, 0.01f, 10000.0f);
+  // Or, for an ortho camera :
+  // glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f);
+  // // In world coordinates
+
+  // Camera matrix
+  glm::mat4 View = glm::lookAt(
+      glm::vec3(2, 0, 0.7), // Camera is at (4,3,3), in World Space
+      glm::vec3(0, 0, 0),   // and looks at the origin
+      glm::vec3(0, 1, 0)    // Head is up (set to 0,-1,0 to look upside-down)
+      );
+  // Model matrix : an identity matrix (model will be at the origin)
+  glm::mat4 Model = glm::mat4(1.0f);
+  // Our ModelViewProjection : multiplication of our 3 matrices
+  glm::mat4 MVP =
+      Projection * View *
+      Model; // Remember, matrix multiplication is the other way around
 
   vector<unsigned int> indices;
   vector<double> vertices;
@@ -78,7 +97,7 @@ int main(void) {
   glGenBuffers(1, &elementbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, elementbuffer);
   glBufferData(GL_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-               &vertices[0], GL_STATIC_DRAW);
+               &indices[0], GL_STATIC_DRAW);
   do {
     // for (int i = 0; i < 9; ++i) {
     //   g_vertex_buffer_data[i] += 0.001;
@@ -90,16 +109,18 @@ int main(void) {
     // Use our shader
     glUseProgram(programID);
 
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glVertexAttribPointer(0, // attribute 0. No particular reason for 0, but
                              // must match the layout in the shader.
                           3, // size
-                          GL_FLOAT, // type
-                          GL_FALSE, // normalized?
-                          0,        // stride
-                          (void *)0 // array buffer offset
+                          GL_DOUBLE, // type
+                          GL_FALSE,  // normalized?
+                          0,         // stride
+                          (void *)0  // array buffer offset
                           );
 
     // Draw the triangle !
@@ -110,10 +131,10 @@ int main(void) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
     // Draw the triangles !
-    glDrawElements(GL_TRIANGLES,      // mode
-                   indices.size(),    // count
+    glDrawElements(GL_TRIANGLES,    // mode
+                   indices.size(),  // count
                    GL_UNSIGNED_INT, // type
-                   (void *)0          // element array buffer offset
+                   (void *)0        // element array buffer offset
                    );
 
     glDisableVertexAttribArray(0);
