@@ -59,6 +59,8 @@ int main(void) {
 
   // Get a handle for our "MVP" uniform
   GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+  GLuint ViewMatrixID = glGetUniformLocation(programID, "V");
+  GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
 
   // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit
   // <-> 100 units
@@ -69,17 +71,17 @@ int main(void) {
   // // In world coordinates
 
   // Camera matrix
-  glm::mat4 View = glm::lookAt(
-      glm::vec3(2, 0, 0.7), // Camera is at (4,3,3), in World Space
+  glm::mat4 ViewMatrix = glm::lookAt(
+      glm::vec3(1, 1, 1), // Camera is at (4,3,3), in World Space
       glm::vec3(0, 0, 0),   // and looks at the origin
       glm::vec3(0, 1, 0)    // Head is up (set to 0,-1,0 to look upside-down)
       );
   // Model matrix : an identity matrix (model will be at the origin)
-  glm::mat4 Model = glm::mat4(1.0f);
+  glm::mat4 ModelMatrix = glm::mat4(1.0f);
   // Our ModelViewProjection : multiplication of our 3 matrices
   glm::mat4 MVP =
-      Projection * View *
-      Model; // Remember, matrix multiplication is the other way around
+      Projection * ViewMatrix *
+      ModelMatrix; // Remember, matrix multiplication is the other way around
 
   vector<unsigned int> indices;
   vector<double> vertices;
@@ -95,9 +97,15 @@ int main(void) {
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), &vertices[0],
                GL_STATIC_DRAW);
   glGenBuffers(1, &elementbuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, elementbuffer);
-  glBufferData(GL_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
                &indices[0], GL_STATIC_DRAW);
+
+  GLuint normalbuffer;
+  glGenBuffers(1, &normalbuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(double), &normals[0],
+               GL_STATIC_DRAW);
   do {
     // for (int i = 0; i < 9; ++i) {
     //   g_vertex_buffer_data[i] += 0.001;
@@ -108,8 +116,15 @@ int main(void) {
 
     // Use our shader
     glUseProgram(programID);
+    GLuint LightID =
+        glGetUniformLocation(programID, "LightPosition_worldspace");
 
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+    glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+
+    glm::vec3 lightPos = glm::vec3(4, 4, 4);
+    glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
@@ -123,9 +138,16 @@ int main(void) {
                           (void *)0  // array buffer offset
                           );
 
-    // Draw the triangle !
-    // glDrawArrays(GL_TRIANGLES, 0, 3); // 3 indices starting at 0 -> 1
-    // triangle
+    // 2rd attribute buffer : normals
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glVertexAttribPointer(1,        // attribute
+                          3,        // size
+                          GL_DOUBLE, // type
+                          GL_FALSE, // normalized?
+                          0,        // stride
+                          (void *)0 // array buffer offset
+                          );
 
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -138,6 +160,7 @@ int main(void) {
                    );
 
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 
     // Swap buffers
     glfwSwapBuffers(window);
@@ -149,6 +172,8 @@ int main(void) {
 
   // Cleanup VBO
   glDeleteBuffers(1, &vertexbuffer);
+  glDeleteBuffers(1, &normalbuffer);
+  glDeleteBuffers(1, &elementbuffer);
   glDeleteVertexArrays(1, &VertexArrayID);
   glDeleteProgram(programID);
 

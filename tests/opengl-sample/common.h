@@ -34,7 +34,7 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
                          // mesh (in OBJ files there is often only one anyway)
 
   // Fill vertices positions
-  vertices.reserve(mesh->mNumVertices);
+  vertices.reserve(3 * mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D pos = mesh->mVertices[i];
     vertices.push_back(pos.x);
@@ -43,7 +43,7 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
   }
 
   // Fill vertices normals
-  normals.reserve(mesh->mNumVertices);
+  normals.reserve(3 * mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D n = mesh->mNormals[i];
     normals.push_back(n.x);
@@ -52,7 +52,7 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
   }
 
   // Fill face indices
-  indices.reserve(3 * mesh->mNumFaces);
+  indices.reserve(9 * mesh->mNumFaces);
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     // Assume the model has only triangles.
     indices.push_back(mesh->mFaces[i].mIndices[0]);
