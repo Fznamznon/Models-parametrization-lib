@@ -1,9 +1,5 @@
 #include "common.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-using namespace glm;
 
 using namespace std;
 
@@ -49,6 +45,14 @@ int main(void) {
   // Dark blue background
   glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
+  // Enable depth test
+  glEnable(GL_DEPTH_TEST);
+  // Accept fragment if it closer to the camera than the former one
+  glDepthFunc(GL_LESS);
+
+  // Cull triangles which normal is not towards the camera
+  glEnable(GL_CULL_FACE);
+
   GLuint VertexArrayID;
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
@@ -72,7 +76,7 @@ int main(void) {
 
   // Camera matrix
   glm::mat4 ViewMatrix = glm::lookAt(
-      glm::vec3(1, 1, 1), // Camera is at (4,3,3), in World Space
+      glm::vec3(2, 2, 2), // Camera is at (4,3,3), in World Space
       glm::vec3(0, 0, 0),   // and looks at the origin
       glm::vec3(0, 1, 0)    // Head is up (set to 0,-1,0 to look upside-down)
       );
@@ -84,8 +88,8 @@ int main(void) {
       ModelMatrix; // Remember, matrix multiplication is the other way around
 
   vector<unsigned int> indices;
-  vector<double> vertices;
-  vector<double> normals;
+  vector<glm::vec3> vertices;
+  vector<glm::vec3> normals;
   bool load = loadAssImp("heart.obj", indices, vertices, normals);
   if (!load)
     printf("FAIL");
@@ -94,7 +98,7 @@ int main(void) {
   GLuint elementbuffer;
   glGenBuffers(1, &vertexbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), &vertices[0],
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0],
                GL_STATIC_DRAW);
   glGenBuffers(1, &elementbuffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -104,7 +108,7 @@ int main(void) {
   GLuint normalbuffer;
   glGenBuffers(1, &normalbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(double), &normals[0],
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0],
                GL_STATIC_DRAW);
   do {
     // for (int i = 0; i < 9; ++i) {
@@ -112,7 +116,7 @@ int main(void) {
     // }
 
     // Clear the screen
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Use our shader
     glUseProgram(programID);
@@ -132,7 +136,7 @@ int main(void) {
     glVertexAttribPointer(0, // attribute 0. No particular reason for 0, but
                              // must match the layout in the shader.
                           3, // size
-                          GL_DOUBLE, // type
+                          GL_FLOAT, // type
                           GL_FALSE,  // normalized?
                           0,         // stride
                           (void *)0  // array buffer offset
@@ -143,7 +147,7 @@ int main(void) {
     glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
     glVertexAttribPointer(1,        // attribute
                           3,        // size
-                          GL_DOUBLE, // type
+                          GL_FLOAT, // type
                           GL_FALSE, // normalized?
                           0,        // stride
                           (void *)0 // array buffer offset

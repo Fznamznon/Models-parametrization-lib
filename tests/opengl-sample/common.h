@@ -16,9 +16,13 @@
 
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+
 bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
-                std::vector<double> &vertices,
-                std::vector<double> &normals) {
+                std::vector<glm::vec3> &vertices,
+                std::vector<glm::vec3> &normals) {
 
   Assimp::Importer importer;
 
@@ -34,25 +38,21 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
                          // mesh (in OBJ files there is often only one anyway)
 
   // Fill vertices positions
-  vertices.reserve(3 * mesh->mNumVertices);
+  vertices.reserve(mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D pos = mesh->mVertices[i];
-    vertices.push_back(pos.x);
-    vertices.push_back(pos.y);
-    vertices.push_back(pos.z);
+    vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
   }
 
   // Fill vertices normals
-  normals.reserve(3 * mesh->mNumVertices);
+  normals.reserve(mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D n = mesh->mNormals[i];
-    normals.push_back(n.x);
-    normals.push_back(n.y);
-    normals.push_back(n.z);
+    normals.push_back(glm::vec3(n.x, n.y, n.z));
   }
 
   // Fill face indices
-  indices.reserve(9 * mesh->mNumFaces);
+  indices.reserve(3 * mesh->mNumFaces);
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     // Assume the model has only triangles.
     indices.push_back(mesh->mFaces[i].mIndices[0]);
