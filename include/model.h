@@ -1,26 +1,27 @@
 #pragma once
 
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 class Model {
 
 private:
-  std::vector<double> act_vertices;
-  std::vector<double> orig_vertices;
+  std::vector<float> act_vertices;
+  std::vector<float> orig_vertices;
 
 public:
   // Constructors
   Model() = default;
-  Model(std::vector<double> vertices);
+  Model(std::vector<float> vertices)
+      : act_vertices(vertices), orig_vertices(vertices) {}
 
   // Vertex getters
-  std::vector<double> get_vertices_vec();
-  double *get_vertices();
+  std::vector<float> getVertices() { return this->act_vertices; }
 
   // Vertex setters
-  void set_vertices_vec(std::vector<double> vertices);
-  void set_vertices(double *vertices, size_t size);
+  void setVertices(std::vector<float> vertices) {
+    this->act_vertices = vertices;
+  }
 
   ~Model() = default;
 };

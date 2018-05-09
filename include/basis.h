@@ -8,6 +8,7 @@ class Scope {
 public:
   virtual bool isDotInside(vec3 dot) const = 0;
   virtual Scope *clone() const = 0;
+  virtual ~Scope() = default;
 };
 
 class AllSpaceScope : public Scope {
@@ -54,8 +55,18 @@ public:
     this->scope = other.scope->clone();
     this->points = other.points;
   }
-  Basis(std::vector<vec3> ps) : points(ps) {}
+  Basis(std::vector<vec3> ps) : points(ps) {
+    this->scope = new AllSpaceScope();
+  }
   Basis(std::vector<vec3> ps, Scope *s) : points(ps), scope(s) {}
+  Basis &operator=(const Basis &other) {
+    if (this != &other) {
+      delete this->scope;
+      this->scope = other.scope->clone();
+      this->points = other.points;
+    }
+    return *this;
+  }
   bool worksForDot(vec3 dot) { return this->scope->isDotInside(dot); }
   std::vector<vec3> getPoints() { return this->points; }
   void setPoints(std::vector<vec3> ps) { this->points = ps; }

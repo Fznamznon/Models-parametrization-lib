@@ -6,17 +6,24 @@
 class Worker {
 private:
   Model m;
-  // TODO: array
-  Basis b;
+  std::vector<Basis> b;
   std::vector<double> b_coords;
+  std::vector<std::vector<size_t>> indices;
   bool initialized;
 
 public:
   Worker() = delete;
-  Worker(Model model, Basis basis) : m(model), b(basis), initialized(false) {}
+  Worker(Model model, Basis basis) : m(model), initialized(false) {
+    b.push_back(basis);
+  }
+  Worker(Model model, std::vector<Basis> basis)
+      : m(model), b(basis), initialized(false) {}
 
   void initialize();
   void transformModel();
+  void setBasis(std::vector<Basis> basis) { this->b = basis; }
+
+  Model getModel() { return this->m; }
 
   ~Worker() = default;
 };
