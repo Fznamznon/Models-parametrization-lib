@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 
+namespace param {
+
+using namespace Math;
+
 class Scope {
 public:
   virtual bool isDotInside(vec3 dot) const = 0;
@@ -72,3 +76,4 @@ public:
   void setPoints(std::vector<vec3> ps) { this->points = ps; }
   ~Basis() { delete this->scope; }
 };
+} // namespace param

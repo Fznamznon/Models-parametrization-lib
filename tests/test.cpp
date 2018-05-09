@@ -1,10 +1,10 @@
 #include <iostream>
-#include <worker.h>
+#include <param.hpp>
 
 int main() {
 
-  Basis b;
-  std::vector<vec3> bp(4);
+  param::Basis b;
+  std::vector<param::Math::vec3> bp(4);
   std::vector<float> model_vertices(9);
 
   for (int i = 0; i < 4; ++i) {
@@ -18,10 +18,9 @@ int main() {
     model_vertices[i + 1] = i;
     model_vertices[i + 2] = i;
   }
-  Model m(model_vertices);
+  param::Model m(model_vertices);
 
-  Worker w(m, b);
-  w.initialize();
+  param::Worker w(m, b);
   w.transformModel();
   return 0;
 }

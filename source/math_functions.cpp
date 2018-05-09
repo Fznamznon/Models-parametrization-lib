@@ -1,5 +1,6 @@
 #include "math_functions.h"
 
+namespace param {
 namespace Math {
 
 // TODO: Rewrite this ugly function
@@ -62,3 +63,4 @@ vec3 computeDecCoords(vec4 bc_coords, std::vector<vec3> bs) {
   return coords;
 }
 } // namespace Math
+} // namespace param

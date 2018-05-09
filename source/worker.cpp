@@ -1,5 +1,7 @@
 #include "worker.h"
 
+namespace param {
+
 void Worker::initialize() {
 
   std::vector<float> vtx = this->m.getVertices();
@@ -43,3 +45,5 @@ void Worker::transformModel() {
   }
   this->m.setVertices(vertices);
 }
+
+} // namespace param

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <vector>
 
+namespace param {
 class Model {
 
 private:
@@ -25,3 +26,4 @@ public:
 
   ~Model() = default;
 };
+} // namespace param

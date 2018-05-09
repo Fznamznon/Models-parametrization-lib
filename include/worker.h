@@ -2,7 +2,7 @@
 
 #include "basis.h"
 #include "model.h"
-
+namespace param {
 class Worker {
 private:
   Model m;
@@ -27,3 +27,4 @@ public:
 
   ~Worker() = default;
 };
+} // namespace param

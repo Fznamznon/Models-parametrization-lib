@@ -18,10 +18,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <worker.h>
+#include <param.hpp>
 
 const double START = 0.0;
 const double STOP = 1.0;
+
+using namespace param;
 
 vec3 lvAVG = {-0.06723282854999998, 0.06897249222500001, 0.055131804300000004};
 
