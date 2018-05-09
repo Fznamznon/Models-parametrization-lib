@@ -76,7 +76,7 @@ int main(void) {
 
   // Camera matrix
   glm::mat4 ViewMatrix = glm::lookAt(
-      glm::vec3(2, 2, 2), // Camera is at (4,3,3), in World Space
+      glm::vec3(0.5, 0.7, 1.6), // Camera is at (4,3,3), in World Space
       glm::vec3(0, 0, 0),   // and looks at the origin
       glm::vec3(0, 1, 0)    // Head is up (set to 0,-1,0 to look upside-down)
       );
@@ -88,18 +88,27 @@ int main(void) {
       ModelMatrix; // Remember, matrix multiplication is the other way around
 
   vector<unsigned int> indices;
-  vector<glm::vec3> vertices;
-  vector<glm::vec3> normals;
+  vector<float> vertices;
+  vector<float> normals;
   bool load = loadAssImp("heart.obj", indices, vertices, normals);
   if (!load)
     printf("FAIL");
 
-  GLuint vertexbuffer;
+  vector<Basis> startBasis;
+  vector<Basis> endBasis;
+  load = readBasisFromObj("heart_start.obj", startBasis);
+  if (!load)
+    printf("FAIL start basis");
+  load = readBasisFromObj("heart_end.obj", endBasis);
+  if (!load)
+    printf("FAIL end basis");
+
+  vector<Basis> curBasis = startBasis;
+
+  Model m(vertices);
+  Worker w(m, curBasis);
+
   GLuint elementbuffer;
-  glGenBuffers(1, &vertexbuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0],
-               GL_STATIC_DRAW);
   glGenBuffers(1, &elementbuffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
@@ -108,15 +117,23 @@ int main(void) {
   GLuint normalbuffer;
   glGenBuffers(1, &normalbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0],
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0],
                GL_STATIC_DRAW);
-  do {
-    // for (int i = 0; i < 9; ++i) {
-    //   g_vertex_buffer_data[i] += 0.001;
-    // }
 
-    // Clear the screen
+  double time = 0;
+  do {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    heartCycle(time, startBasis, endBasis, curBasis);
+    w.setBasis(curBasis);
+    w.transformModel();
+
+    std::vector<float> vtx = w.getModel().getVertices();
+    GLuint vertexbuffer;
+    glGenBuffers(1, &vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, vtx.size() * sizeof(float), &vtx[0],
+                 GL_DYNAMIC_DRAW);
 
     // Use our shader
     glUseProgram(programID);
@@ -169,13 +186,17 @@ int main(void) {
     // Swap buffers
     glfwSwapBuffers(window);
     glfwPollEvents();
+    time += 0.02;
+    if (time > 2.0) {
+      time = 0;
+    }
+    glDeleteBuffers(1, &vertexbuffer);
 
   } // Check if the ESC key was pressed or the window was closed
   while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0);
 
   // Cleanup VBO
-  glDeleteBuffers(1, &vertexbuffer);
   glDeleteBuffers(1, &normalbuffer);
   glDeleteBuffers(1, &elementbuffer);
   glDeleteVertexArrays(1, &VertexArrayID);

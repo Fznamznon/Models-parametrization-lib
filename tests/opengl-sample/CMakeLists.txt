@@ -29,4 +29,6 @@ configure_file(SimpleFragmentShader.fragmentshader SimpleFragmentShader.fragment
 configure_file(SimpleVertexShader.vertexshader SimpleVertexShader.vertexshader COPYONLY)
 
 configure_file(heart.obj heart.obj COPYONLY)
+configure_file(heart_start.obj heart_start.obj COPYONLY)
+configure_file(heart_end.obj heart_end.obj COPYONLY)
 

@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <worker.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -19,10 +18,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <worker.h>
+
+const double START = 0.0;
+const double STOP = 1.0;
+
+vec3 lvAVG = {-0.06723282854999998, 0.06897249222500001, 0.055131804300000004};
 
 bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
-                std::vector<glm::vec3> &vertices,
-                std::vector<glm::vec3> &normals) {
+                std::vector<float> &vertices,
+                std::vector<float> &normals) {
 
   Assimp::Importer importer;
 
@@ -41,14 +46,18 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
   vertices.reserve(mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D pos = mesh->mVertices[i];
-    vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
+    vertices.push_back(pos.x);
+    vertices.push_back(pos.y);
+    vertices.push_back(pos.z);
   }
 
   // Fill vertices normals
   normals.reserve(mesh->mNumVertices);
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D n = mesh->mNormals[i];
-    normals.push_back(glm::vec3(n.x, n.y, n.z));
+    normals.push_back(n.x);
+    normals.push_back(n.y);
+    normals.push_back(n.z);
   }
 
   // Fill face indices
@@ -62,6 +71,99 @@ bool loadAssImp(const char *path, std::vector<unsigned int> &indices,
 
   // The "scene" pointer will be deleted automatically by "importer"
   return true;
+}
+
+bool readBasisFromObj(const char *path, std::vector<Basis> &out) {
+
+  Assimp::Importer importer;
+
+  const aiScene *scene = importer.ReadFile(
+      path, 0 /*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
+  if (!scene) {
+    fprintf(stderr, importer.GetErrorString());
+    getchar();
+    return false;
+  }
+  const aiMesh *mesh = scene->mMeshes[0];
+
+  std::vector<vec3> vertices;
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    aiVector3D pos = mesh->mVertices[i];
+    vertices.push_back(vec3(pos.x, pos.y, pos.z));
+  }
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    std::vector<vec3> points;
+    size_t ind = mesh->mFaces[i].mIndices[0];
+    points.push_back(vertices[ind]);
+    ind = mesh->mFaces[i].mIndices[1];
+    points.push_back(vertices[ind]);
+    ind = mesh->mFaces[i].mIndices[2];
+    points.push_back(vertices[ind]);
+    points.push_back(lvAVG);
+    Scope *s = new TetrahedronScope(points);
+    Basis b(points, s);
+    out.push_back(b);
+  }
+
+  // The "scene" pointer will be deleted automatically by "importer"
+  return true;
+}
+
+void systole(double start, double stop, double cur,
+             std::vector<Basis> startBasis, std::vector<Basis> endBasis,
+             std::vector<Basis> &result) {
+  for (size_t j = 0; j < startBasis.size(); ++j) {
+    std::vector<vec3> spoints = startBasis[j].getPoints();
+    std::vector<vec3> epoints = endBasis[j].getPoints();
+    std::vector<vec3> respoints(epoints.size());
+    for (size_t i = 0; i < epoints.size(); ++i) {
+      double hx = (epoints[i].x - spoints[i].x) / (stop - start);
+      double hy = (epoints[i].y - spoints[i].y) / (stop - start);
+      double hz = (epoints[i].z - spoints[i].z) / (stop - start);
+
+      respoints[i].x = spoints[i].x + (cur - start) * hx;
+      respoints[i].y = spoints[i].y + (cur - start) * hy;
+      respoints[i].z = spoints[i].z + (cur - start) * hz;
+    }
+    result[j].setPoints(respoints);
+  }
+}
+
+void diastole(double start, double stop, double cur,
+              std::vector<Basis> startBasis, std::vector<Basis> endBasis,
+              std::vector<Basis> &result) {
+  for (size_t j = 0; j < startBasis.size(); ++j) {
+    std::vector<vec3> spoints = startBasis[j].getPoints();
+    std::vector<vec3> epoints = endBasis[j].getPoints();
+    std::vector<vec3> respoints(epoints.size());
+    for (size_t i = 0; i < epoints.size(); ++i) {
+      double hx = (epoints[i].x - spoints[i].x) / (stop - start);
+      double hy = (epoints[i].y - spoints[i].y) / (stop - start);
+      double hz = (epoints[i].z - spoints[i].z) / (stop - start);
+
+      respoints[i].x = epoints[i].x - (cur - stop) * hx;
+      respoints[i].y = epoints[i].y - (cur - stop) * hy;
+      respoints[i].z = epoints[i].z - (cur - stop) * hz;
+    }
+    result[j].setPoints(respoints);
+  }
+}
+
+void heartCycle(double cur, std::vector<Basis> startBasis,
+              std::vector<Basis> endBasis, std::vector<Basis> &result) {
+  static int direction = 1;
+  if (fabs(cur - START) <= 0.0001) {
+    direction = 1;
+  }
+  if (fabs(cur - STOP) <= 0.0001) {
+    direction = -1;
+  }
+  if (direction > 0) {
+    systole(START, STOP, cur, startBasis, endBasis, result);
+  } else {
+    diastole(START, STOP, cur, startBasis, endBasis, result);
+  }
 }
 
 GLuint LoadShaders(const char *vertex_file_path,
