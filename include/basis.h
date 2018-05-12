@@ -4,6 +4,11 @@
 #include <iostream>
 #include <vector>
 
+/*!
+\file
+\brief Header file with Scope-related classes and Basis class.
+*/
+
 namespace param {
 
 using namespace Math;
