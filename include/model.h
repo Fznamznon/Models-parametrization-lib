@@ -29,10 +29,10 @@ public:
       : act_vertices(vertices), orig_vertices(vertices) {}
 
   // Vertex getter
-  std::vector<float> getVertices() { return this->act_vertices; }
+  std::vector<float>& getVertices() { return this->act_vertices; }
 
   // Vertex setter
-  void setVertices(std::vector<float> vertices) {
+  void setVertices(std::vector<float> &vertices) {
     this->act_vertices = vertices;
   }
 
