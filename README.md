@@ -7,13 +7,20 @@ Below we can see heart beating animation created with this library and OpenGL:
 ![Animated](images/heart.gif)
 
 ## Usage
+
 ```c++
+// include main header
+#include <param.hpp>
 // create basis
 param::Basis b;
 // create model
 param::Model m(model_vertices);
 // create worker
 param::Worker w(m, b);
+// initialize worker
+w.initialize();
+// change basis
+w.setBasis(new_basis);
 // transform model!
 w.transformModel();
 // then you can use transformed model
@@ -30,14 +37,14 @@ glBufferData(GL_ARRAY_BUFFER, vtx.size() * sizeof(float), &vtx[0],
 You need compiler with C++11 support and CMake.
 
 ```sh
-https://github.com/Fznamznon/Models-parametrization-lib.git
-cd Models-parametrization-lib
+git clone https://github.com/Fznamznon/Models-parametrization-lib.git param-lib
+cd param-lib
 mkdir build
 cmake ..
 make
 ```
 ## Documentation
-Doxygen in plans.
+[Doxygen](https://fznamznon.github.io/param-docs/)
 
 ## How it works
 TBD.
