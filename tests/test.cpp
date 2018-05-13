@@ -19,9 +19,10 @@ int main() {
     model_vertices[i + 2] = i;
   }
   param::Model m(model_vertices);
-
+//! [example]
   param::Worker w(m, b);
   w.transformModel();
+//! [example]
   return 0;
 }
 

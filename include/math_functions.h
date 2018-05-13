@@ -23,7 +23,7 @@ vec4 computeBCCoords(vec3 target, std::vector<vec3> bs);
 /*!
 Computes Cartesian coordinates for point from barycentric coordinates relatively
 affine basis.
-\param[in] target - point in 3-dimensional space.
+\param[in] bc_coords - point in 3-dimensional space.
 \param[in] bs - vector describing affine basis points.
 \return vector of Cartesian coordinates.
 */
