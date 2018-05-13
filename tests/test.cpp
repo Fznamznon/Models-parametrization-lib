@@ -3,7 +3,8 @@
 
 int main() {
 
-  param::Basis b;
+  param::Basis basis;
+  param::Basis new_basis;
   std::vector<param::Math::vec3> bp(4);
   std::vector<float> model_vertices(9);
 
@@ -12,15 +13,23 @@ int main() {
     bp[i].y = i;
     bp[i].z = i;
   }
-  b.setPoints(bp);
+  basis.setPoints(bp);
   for (int i = 0; i < 9; i += 3) {
     model_vertices[i] = i;
     model_vertices[i + 1] = i;
     model_vertices[i + 2] = i;
   }
-  param::Model m(model_vertices);
+  for (int i = 0; i < 4; ++i) {
+    bp[i].x++;
+    bp[i].y++;
+    bp[i].z++;
+  }
+  new_basis.setPoints(bp);
+  param::Model model(model_vertices);
 //! [example]
-  param::Worker w(m, b);
+  param::Worker w(model, basis);
+  w.initialize();
+  w.setBasis(new_basis);
   w.transformModel();
 //! [example]
   return 0;

@@ -58,7 +58,9 @@ public:
   */
   void setBasis(std::vector<Basis> basis) { this->b = basis; }
 
-  Model getModel() { return this->m; }
+  void setBasis(Basis basis) { this->b[0] = basis; }
+
+  Model& getModel() { return this->m; }
 
   ~Worker() = default;
 };
