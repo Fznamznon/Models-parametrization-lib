@@ -6,7 +6,7 @@
 */
 
 namespace param {
-namespace Math {
+namespace math {
 /*!
   \brief Class describing 3-dimensional vector.
   \author Fznamznon

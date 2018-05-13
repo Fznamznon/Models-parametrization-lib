@@ -11,7 +11,7 @@
 
 namespace param {
 
-using namespace Math;
+using namespace math;
 
 /*!
   \brief Abstract class describing 3-dimensional scope.
@@ -65,7 +65,7 @@ public:
     this->vertices = _vertices;
   }
   bool isDotInside(vec3 dot) const override {
-    vec4 coords = Math::computeBCCoords(dot, this->vertices);
+    vec4 coords = math::computeBCCoords(dot, this->vertices);
     // TODO: make this check more pretty
     if (coords.x >= 0 && coords.y >= 0 && coords.z >= 0 && coords.a >= 0) {
       return true;

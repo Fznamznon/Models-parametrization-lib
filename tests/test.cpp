@@ -5,7 +5,7 @@ int main() {
 
   param::Basis basis;
   param::Basis new_basis;
-  std::vector<param::Math::vec3> bp(4);
+  std::vector<param::math::vec3> bp(4);
   std::vector<float> model_vertices(9);
 
   for (int i = 0; i < 4; ++i) {

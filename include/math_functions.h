@@ -9,7 +9,7 @@
 */
 
 namespace param {
-namespace Math {
+namespace math {
 
 /*!
 Computes barycentric coordinates for point from Cartesian coordinates relatively

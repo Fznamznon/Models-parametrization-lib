@@ -12,7 +12,7 @@ void Worker::initialize() {
     for (size_t j = 0; j < b.size(); ++j) {
       if (this->b[j].worksForDot(p)) {
         size_t ind = i / 3;
-        vec4 coords = Math::computeBCCoords(p, this->b[j].getPoints());
+        vec4 coords = math::computeBCCoords(p, this->b[j].getPoints());
         this->b_coords[ind * 4] = coords.x;
         this->b_coords[ind * 4 + 1] = coords.y;
         this->b_coords[ind * 4 + 2] = coords.z;
@@ -36,7 +36,7 @@ void Worker::transformModel() {
       vec4 c = {this->b_coords[ind * 4], this->b_coords[ind * 4 + 1],
                 this->b_coords[ind * 4 + 2], this->b_coords[ind * 4 + 3]};
 
-      vec3 result_coords = Math::computeDecCoords(c, this->b[i].getPoints());
+      vec3 result_coords = math::computeDecCoords(c, this->b[i].getPoints());
 
       vertices[ind * 3] = result_coords.x;
       vertices[ind * 3 + 1] = result_coords.y;

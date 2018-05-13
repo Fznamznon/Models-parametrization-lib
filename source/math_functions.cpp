@@ -1,7 +1,7 @@
 #include "math_functions.h"
 
 namespace param {
-namespace Math {
+namespace math {
 
 // TODO: Rewrite this ugly function
 vec4 computeBCCoords(vec3 target, std::vector<vec3> bs) {
