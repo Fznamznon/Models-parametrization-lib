@@ -4,7 +4,7 @@ namespace param {
 
 void Worker::initialize() {
 
-  std::vector<float> vtx = this->m.getVertices();
+  std::vector<double> vtx = this->m.getVertices();
   this->indices = std::vector<std::vector<size_t>>(b.size());
   this->b_coords = std::vector<double>(vtx.size() / 3 * 4);
   for (size_t i = 0; i < vtx.size(); i += 3) {
@@ -28,7 +28,7 @@ void Worker::transformModel() {
   if (!this->initialized)
     initialize();
 
-  std::vector<float> vertices = this->m.getVertices();
+  std::vector<double> vertices = this->m.getVertices();
   for (size_t i = 0; i < this->indices.size(); ++i) {
     for (size_t j = 0; j < this->indices[i].size(); ++j) {
       size_t ind = this->indices[i][j];

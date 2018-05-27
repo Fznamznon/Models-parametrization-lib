@@ -18,21 +18,21 @@ class Model {
 
 private:
 /// Actual verices
-  std::vector<float> act_vertices;
+  std::vector<double> act_vertices;
 /// Original verices
-  std::vector<float> orig_vertices;
+  std::vector<double> orig_vertices;
 
 public:
   // Constructors
   Model() = default;
-  Model(std::vector<float> vertices)
+  Model(std::vector<double> vertices)
       : act_vertices(vertices), orig_vertices(vertices) {}
 
   // Vertex getter
-  std::vector<float>& getVertices() { return this->act_vertices; }
+  std::vector<double>& getVertices() { return this->act_vertices; }
 
   // Vertex setter
-  void setVertices(std::vector<float> &vertices) {
+  void setVertices(std::vector<double> &vertices) {
     this->act_vertices = vertices;
   }
 
